@@ -1,0 +1,48 @@
+name: Build iOS App
+
+on:
+  push:
+    branches:
+      - main  # O la rama que estés usando para el código estable
+
+jobs:
+  build:
+    runs-on: macos-latest  # Usa el entorno macOS para compilar la app iOS
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # Se asegura de que el código esté disponible en el runner
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'  # O la versión de Node.js que estés utilizando
+
+    - name: Install dependencies
+      run: |
+        npm install  # Instala las dependencias de tu proyecto
+
+    - name: Install Ionic CLI
+      run: |
+        npm install -g @ionic/cli  # Instala Ionic CLI globalmente
+
+    - name: Install Capacitor dependencies
+      run: |
+        npm install @capacitor/core @capacitor/ios  # Instala Capacitor y sus dependencias
+
+    - name: Build the project
+      run: |
+        ionic build --prod  # Construye tu aplicación para producción
+
+    - name: Sync Capacitor with iOS platform
+      run: |
+        npx cap sync ios  # Sincroniza las dependencias de iOS
+
+    - name: Open iOS project in Xcode
+      run: |
+        npx cap open ios  # Abre el proyecto en Xcode, se compilará aquí
+
+    - name: Build and generate .ipa file
+      run: |
+        xcodebuild -workspace ios/App.xcworkspace -scheme App -sdk iphoneos -configuration Release archive -archivePath ${{ github.workspace }}/build/App.xcarchive  # Comando de Xcode para compilar la app
+        xcodebuild -exportArchive -archivePath ${{ github.workspace }}/build/App.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath ${{ github.workspace }}/build  # Exporta el archivo .ipa
