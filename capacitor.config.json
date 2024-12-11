@@ -1,0 +1,6 @@
+{
+  "appId": "com.tudominio.myapp",
+  "appName": "myApp",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
